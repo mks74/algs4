@@ -32,6 +32,7 @@ public class Deque<Item> implements Iterable<Item> {
         head = new Element();
         head.item = item;
         head.next = prevhead;
+        if (prevhead != null) prevhead.prior = head;
         if (tail == null) tail = head;
         size++;
     }
@@ -45,20 +46,32 @@ public class Deque<Item> implements Iterable<Item> {
         if (head == null) head = tail;
         size++;
     }
-    
     public Item removeFirst() {               // remove and return the item from the front
         if (isEmpty()) throw new NoSuchElementException("deque empty");
         Item item = head.item;
+        if (size == 1) {
+            tail = null;
+            head = null;
+        }
+        else {
         head = head.next;
         head.prior = null;
+        }
         size--;
         return item;
     }
     public Item removeLast() {                // remove and return the item from the end
         if (isEmpty()) throw new NoSuchElementException("deque empty");
         Item item = tail.item;
-        tail = tail.prior;
-        tail.next = null;
+        if (size == 1) {
+            tail = null;
+            head = null;
+        }
+        else {
+            tail = tail.prior;
+            tail.next.prior = null;
+            tail.next = null;
+        }
         size--;
         return item;
     }
@@ -78,23 +91,21 @@ public class Deque<Item> implements Iterable<Item> {
     }
     public static void main(String[] args)  { // unit testing (optional)
         Deque<Integer> d = new Deque<Integer>();
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 5; i++) {
+            d.addFirst(i);
+        }
+        StdOut.printf("size: %d\n", d.size());
+        for (int i = 0; i < 5; i++) {
+            // d.addFirst(i);
+            StdOut.printf("%d\n", d.removeLast());
+        }
+        for (int i = 0; i < 5; i++) {
             d.addLast(i);
         }
         StdOut.printf("size: %d\n", d.size());
-        Iterator<Integer> it = d.iterator();
-        while (it.hasNext()) {
-            StdOut.printf("%d\n", it.next());
-        }
-        StdOut.printf("size: %d\n", d.size());
-        for (int i = 0; i < 10; i++) {
-            d.addFirst(i);
-            StdOut.printf("%d\n", d.removeLast());
-        }
-        StdOut.printf("size: %d\n", d.size());
-        it = d.iterator();
-        while (it.hasNext()) {
-            StdOut.printf("%d\n", it.next());
+        for (int i = 0; i < 5; i++) {
+            // d.addFirst(i);
+            StdOut.printf("%d\n", d.removeFirst());
         }
     }
 }
