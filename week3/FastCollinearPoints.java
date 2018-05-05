@@ -56,6 +56,17 @@ public class FastCollinearPoints {
                     result[k++] = copy[j];
                 }
             }
+            if (k >= 3) {
+                result[k] = points[i];
+                // StdOut.println("last lap catch, k >= 3, i: " + i + " pre sort result: " + Arrays.toString(result));
+                Arrays.sort(result, 0, k + 1);
+                // StdOut.println("k >= 3, i: " + i + " post sort result: " + Arrays.toString(result));
+                if (result[0] == points[i]) {
+                    seglist.add(new LineSegment(result[0], result[k]));
+                    count++;
+                    // StdOut.println((k + 1)+ " point segment for i " + i + ": " + result[0] + "-> " + result[k] + "\n");
+                }
+            }
         }
     }
     public int numberOfSegments() {       // the number of line segments
