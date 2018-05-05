@@ -32,7 +32,7 @@ public class FastCollinearPoints {
             ref = Double.NEGATIVE_INFINITY;
             result[0] = copy[0];
             for (int j = 1; j < copy.length; j++) {
-                // StdOut.println(points[i].slopeTo(copy[j]) + " " + ref);
+                // StdOut.println("j: " + j + " " + points[i].slopeTo(copy[j]) + " " + ref);
                 if (points[i].slopeTo(copy[j]) == ref) {
                     result[k++] = copy[j];
                     // StdOut.println("same!\n" + k);
@@ -44,17 +44,16 @@ public class FastCollinearPoints {
                         // StdOut.println("k >= 3, i: " + i + " pre sort result: " + Arrays.toString(result));
                         Arrays.sort(result, 0, k + 1);
                         // StdOut.println("k >= 3, i: " + i + " post sort result: " + Arrays.toString(result));
-                        seglist.add(new LineSegment(result[0], result[k]));
-                        StdOut.println((k + 1)+ " point segment for i " + i + ": " + result[0] + "-> " + result[k] + "\n");
-                        count++;
-                        k = 0;
+                        if (result[0] == points[i]) {
+                            seglist.add(new LineSegment(result[0], result[k]));
+                            count++;
+                            // StdOut.println((k + 1)+ " point segment for i " + i + ": " + result[0] + "-> " + result[k] + "\n");
+                        }
                     }
-                    else {
-                        // StdOut.println("scrap & reset! " + k + "new ref:" + points[i].slopeTo(copy[j]));
-                        ref = points[i].slopeTo(copy[j]);
-                        k = 0;
-                        result[k++] = copy[j];
-                    }
+                    // StdOut.println("reset! " + k + "new ref:" + points[i].slopeTo(copy[j]));
+                    ref = points[i].slopeTo(copy[j]);
+                    k = 0;
+                    result[k++] = copy[j];
                 }
             }
         }
