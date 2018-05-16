@@ -6,30 +6,33 @@ import edu.princeton.cs.algs4.StdOut;
 public class Board {
     private int n;
     private int[][] tiles;
-    private int[][] goal;
+    // private int[][] goal;
     
     public Board(int[][] blocks) {          // construct a board from an n-by-n array of blocks
                                            // (where blocks[i][j] = block in row i, column j)
         n =  blocks.length;
         tiles = new int[n][n];
-        goal = new int[n][n];
-        int k = 1;
+        // goal = new int[n][n];
         for(int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 tiles[i][j] = blocks[i][j];
-                goal[i][j] = k++;
+                // goal[i][j] = k++;
             }
         }
-        goal[n - 1][n - 1] = 0;
+        // goal[n - 1][n - 1] = 0;
     }
     public int dimension() {                // board dimension n
         return n;
     }
     public int hamming() {                  // number of blocks out of place
         int h = 0;
+        int k = 1;
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                if (tiles[i][j] != goal[i][j]) h++;
+                if (k == (n * n)) k = 0;
+                if ((tiles[i][j] != 0) && (tiles[i][j] != k)) h++;
+                k++;
+                // StdOut.println("tile: " + tiles[i][j] + "k: " + k + "h: " + h);
             }
         }
         return h;
@@ -59,9 +62,17 @@ public class Board {
                 blerg[i][j] = tiles[i][j];
             }
         }
-        int b = blerg[0][0];
-        blerg[0][0] = blerg[0][1];
-        blerg[0][1] = b;
+        int b;
+        if (blerg[0][0] != 0 && blerg[0][1] != 0) {
+            b = blerg[0][0];
+            blerg[0][0] = blerg[0][1];
+            blerg[0][1] = b;
+        } else {
+            b = blerg[1][0];
+            blerg[1][0] = blerg[1][1];
+            blerg[1][1] = b;
+        }
+
         Board twin = new Board(blerg);
         return twin;
     }
@@ -70,6 +81,8 @@ public class Board {
         if (y == null) return false;
         if (y.getClass() != this.getClass()) return false;
         Board that = (Board) y;
+        
+        if (that.tiles.length != n) return false;
         
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
@@ -171,10 +184,14 @@ public class Board {
             StdOut.println(filename + ": isgoal: " + initial.isGoal());
             StdOut.println(filename + ": equals(temp): " + initial.equals(new Board(temp)));
             StdOut.println(filename + ": neighbors: ");
-            neighbors = (Stack<Board>) initial.neighbors();
-            while (!neighbors.empty()) {
-                StdOut.println(neighbors.pop().toString());
+            // neighbors = (Stack<Board>) initial.neighbors();
+            for (Board neighbor : initial.neighbors()) {
+                System.out.println(neighbor.toString());
             }
+
+            // while (!neighbors.empty()) {
+               // StdOut.println(neighbors.pop().toString());
+            // }
         }
     }
 }
