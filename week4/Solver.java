@@ -2,16 +2,17 @@ import edu.princeton.cs.algs4.MinPQ;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdOut;
 import java.util.Comparator;
+import java.util.ArrayDeque;
 
 public class Solver {
-    private boolean solvable = false;
-    private int moves = 0;
+    private boolean solvable;
+    private Node current;
     
     public Solver(Board initial) {          // find a solution to the initial board (using the A* algorithm)
         if (initial == null) throw new java.lang.IllegalArgumentException();
         
-        MinPQ<Node> pqI = new MinPQ<Node>(new orderByPrio());
-        MinPQ<Node> pqT = new MinPQ<Node>(new orderByPrio());
+        MinPQ<Node> pqI = new MinPQ<Node>(new OrderByPrio());
+        MinPQ<Node> pqT = new MinPQ<Node>(new OrderByPrio());
         
         Board twin = initial.twin();
         
@@ -19,29 +20,67 @@ public class Solver {
         inode.board = initial;
         inode.prev = null;
         inode.priority = initial.manhattan();
-        
+        inode.moves = 0;
+        // StdOut.println("inserting inital board\n" + initial.toString());
         pqI.insert(inode);
         
         Node tnode = new Node();
         tnode.board = twin;
         tnode.prev = null;
         tnode.priority = twin.manhattan();
-        
+        tnode.moves = 0;
+        // StdOut.println("inserting twin\n" + twin.toString());
         pqT.insert(tnode);
         
+        int moves = 0;
+        Node newborn;
         while (true) {
-        Node current = pqI.delMin();
-        if (!current.board.isGoal()) {
-            for (Board neighbor : current.board.neighbors()) {
-                if (!neighbor.equals(current.prev)) {
-                    Node newborn = new Node();
-                    newborn.board = neighbor;
-                    newborn.prev = current;
-                    newborn.moves = moves;
-                    newborn.priority = (neighbor.manhattan() + moves);
+            // moves++;
+            // StdOut.println("moves: " + moves);
+            current = pqI.delMin();
+            // StdOut.println("dequeued pqI, prio:" + current.priority + "\n" + current.board.toString());
+            if (!current.board.isGoal()) {
+                for (Board neighbor : current.board.neighbors()) {
+                    if ((current.prev != null) && (neighbor.equals(current.prev.board))) {
+                        // StdOut.println("ignoring\n" + neighbor.toString());
+                    } else {
+                        newborn = new Node();
+                        newborn.board = neighbor;
+                        newborn.prev = current;
+                        newborn.moves = current.moves + 1;
+                        newborn.priority = (neighbor.manhattan() + newborn.moves);
+                        // StdOut.println("inserting inital neighbor, manhattan: " + neighbor.manhattan() + "prio: " + newborn.priority + "\n" + neighbor.toString());
+                        pqI.insert(newborn);
+                    }
                 }
+            } else {
+                solvable = true;
+                // StdOut.println("Solved!" + current.board.toString());
+                // StdOut.println("current.moves: " + current.moves);
+                // StdOut.println("current.priority: " + current.priority);
+                break;
             }
-        }
+            current = pqT.delMin();
+            // StdOut.println("dequeued pqT, got:\n" + current.board.toString());
+            if (!current.board.isGoal()) {
+                for (Board neighbor : current.board.neighbors()) {
+                    if ((current.prev != null) && (neighbor.equals(current.prev.board))) {
+                        // StdOut.println("ignoring\n" + neighbor.toString());
+                    } else {
+                        newborn = new Node();
+                        newborn.board = neighbor;
+                        newborn.prev = current;
+                        newborn.moves = current.moves + 1;
+                        newborn.priority = (neighbor.manhattan() + newborn.moves);
+                        // StdOut.println("inserting twin neighbor, prio: " + newborn.priority + "\n" + neighbor.toString());
+                        pqT.insert(newborn);
+                    }
+                }
+            } else {
+                solvable = false;
+                // StdOut.println("Unsolvable!");
+                break;
+            }
         }
         
     }
@@ -49,13 +88,12 @@ public class Solver {
         Board board;
         Node prev;
         int priority;
-        int manhattan;
         int moves;
     }
-    private class orderByPrio implements Comparator<Node> {
+    private class OrderByPrio implements Comparator<Node> {
         public int compare(Node a, Node b) {
           int pri = a.priority - b.priority;
-          if (pri == 0) return (a.manhattan - b.manhattan);
+          if (pri == 0) return (a.board.manhattan() - b.board.manhattan());
           return pri;
         }
     }
@@ -64,11 +102,23 @@ public class Solver {
     }
     
     public int moves() {                    // min number of moves to solve initial board; -1 if unsolvable
-        if (!isSolvable()) return -1;
-        return moves;
+        if (!solvable) return -1;
+        return current.moves;
     }
     public Iterable<Board> solution() {     // sequence of boards in a shortest solution; null if unsolvable
-        return null;
+        if (!solvable) return null;
+        // ArrayList<Board> solution = new ArrayList<Board>(); 
+        Node blerg = current;
+        ArrayDeque<Board> solution = new ArrayDeque<Board>(); 
+        
+        // StdOut.println("solution: current.moves: " + current.moves);
+        int j = blerg.moves + 1;
+        for (int i = 0; i < j; i++) {
+            // StdOut.println("i: " + i);
+            solution.addFirst(blerg.board);
+            blerg = blerg.prev;
+        }
+        return solution;
     }
     public static void main(String[] args) { // solve a slider puzzle (given below)
         In in = new In(args[0]);
