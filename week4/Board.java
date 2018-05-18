@@ -5,6 +5,7 @@ import edu.princeton.cs.algs4.StdOut;
 
 public class Board {
     private int n;
+    private int m;
     private int[][] tiles;
     // private int[][] goal;
     
@@ -12,14 +13,22 @@ public class Board {
                                            // (where blocks[i][j] = block in row i, column j)
         n =  blocks.length;
         tiles = new int[n][n];
-        // goal = new int[n][n];
         for(int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 tiles[i][j] = blocks[i][j];
-                // goal[i][j] = k++;
             }
         }
-        // goal[n - 1][n - 1] = 0;
+        for(int i = 0; i < n; i++){
+            for(int j = 0; j < n; j++){
+               if (tiles[i][j] != 0) { //
+                   int targetX = (tiles[i][j] - 1) / n; 
+                   int targetY = (tiles[i][j] - 1) % n; 
+                   int dx = i - targetX; 
+                   int dy = j - targetY; 
+                   m += Math.abs(dx) + Math.abs(dy);
+               }
+            } 
+        }
     }
     public int dimension() {                // board dimension n
         return n;
@@ -38,18 +47,6 @@ public class Board {
         return h;
     }
     public int manhattan() {                // sum of Manhattan distances between blocks and goal
-        int m = 0;
-        for(int i = 0; i < n; i++){
-            for(int j = 0; j < n; j++){
-               if (tiles[i][j] != 0) { //
-                   int targetX = (tiles[i][j] - 1) / n; 
-                   int targetY = (tiles[i][j] - 1) % n; 
-                   int dx = i - targetX; 
-                   int dy = j - targetY; 
-                   m += Math.abs(dx) + Math.abs(dy);
-               }
-            } 
-        }
         return m;
     }
     public boolean isGoal() {               // is this board the goal board?
